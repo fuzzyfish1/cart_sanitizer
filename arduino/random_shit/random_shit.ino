@@ -1,8 +1,3 @@
-/*********
-  Rui Santos
-  Complete project details at https://randomnerdtutorials.com  
-*********/
-
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
@@ -17,10 +12,12 @@ const char* password = "chochotrainez";
 ESP8266WebServer server(80);
 
 String weboff = "<h1>CartSanitizer</h1><a href = \"on\" ><button>ON</button></a><a href = \"off\"><button style = \"background-color: rgb(255,0,0);\">OFF</button></a>";
-String webon = "<h1>CartSanitizer</h1><a href = \"on\" style = \"background-color: rgb(0,255,0);\"><button> ON</button></a><a href=\"off\"><button>OFF</button></a>";
+String webon = "<h1>CartSanitizer</h1><a href = \"on\"><button style = \"background-color: rgb(0,255,0);\"> ON</button></a><a href=\"off\"><button>OFF</button></a>";
 
-bool relayon = false;
-
+bool manual = false;
+bool manualspraying = false;
+int count = 0;
+bool lastread = false;
 //int redledpin = 14;
 int greenledpin = 13; // low turns it on high is off
 int relaypin = 12; // high is on Low is off
@@ -65,12 +62,62 @@ void setup(void){
     server.send(200, "text/html", weboff);
     turnoff();
   });
+  manual = false;
+  manualspraying = false;
+  count = 0;
   server.begin();
 }
- 
+
 void loop(void){
   
-  server.handleClient();
+  bool currentread = digitalRead(buttonpin);
+  
+  if(!manual){ 
+    // if notmanual
+    if(currentread==LOW){
+      // if button pushed emergency stop and turn on manual
+      turnoff();
+      blinkled(500);
+      manual = true;
+      manualspraying = false;
+    }else{
+      server.handleClient();  
+    }
+  } else {
+    
+    if(currentread == LOW){
+    
+      unsigned long elapsed = 0;
+      unsigned long StartTime = millis();
+      
+      while(currentread==LOW){
+        currentread = digitalRead(buttonpin);
+        lastread = currentread;
+        delay(1);
+      }
+      elapsed = millis() - StartTime;
+      
+      if(elapsed >= 3000){// button held for more than 3 seconds
+        turnoff();
+        manualspraying = false;
+        manual = false;
+        blinkled(100);
+      }else if(elapsed <=3000){// when released toggle the spray
+        
+        manualspraying = !manualspraying;
+        if(manualspraying){
+          turnon();
+        }else if(!manualspraying){
+          turnoff();
+        }
+     }
+    }
+    
+  }
+
+  
+
+  
 }
 
 void turnon(){
@@ -81,4 +128,13 @@ void turnon(){
 void turnoff(){
   digitalWrite(greenledpin, HIGH);
   digitalWrite(relaypin,LOW);
+}
+void blinkled(int delaytime){
+  for(int i = 0;i<20;i++){
+    digitalWrite(greenledpin, LOW);
+    delay(delaytime);
+    digitalWrite(greenledpin, HIGH);
+    delay(delaytime);
+  }
+  
 }
