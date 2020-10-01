@@ -8,17 +8,17 @@
 	3. wait until it connects to local wifi
 	4. adjust sprayers as necessary
 	5. find ip adress
-		1. check your routers arp tables
+		* check your routers arp tables
 	6. remote control
-		1. enter ip into chrome browser
-		2. push on or off buttons to control
-		3. tap button to enter manual control/emergency shuttoff
+		* enter ip into chrome browser
+		* push on or off buttons to control
+		* tap button to enter manual control/emergency shuttoff
 	7. manual control
 		1. wait for slow blink to finish
 		2. tap once to toggle on/off
 		3. to enter remote control
-			1. press and hold button for 3seconds
-			2. wait for fast blink to finish
+			* press and hold button for 3seconds
+			* wait for fast blink to finish
 	
 ## mechanical aspect
 	we are using a fishtank pump to pump water through vinyl tube
